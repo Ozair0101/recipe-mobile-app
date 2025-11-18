@@ -18,7 +18,7 @@ export const authStyles = StyleSheet.create({
   },
   imageContainer: {
     height: height * 0.3,
-    marginBottom: 30,
+    marginBottom: 40,
     justifyContent: "center",
     alignItems: "center",
   },

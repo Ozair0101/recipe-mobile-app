@@ -51,7 +51,19 @@ const SignInScreen = () => {
         console.error(JSON.stringify(signInAttempt, null, 2));
       }
     } catch (err) {
-      Alert.alert("Error", err.errors?.[0]?.message || "Sign in failed");
+      const clerkError = err?.errors?.[0];
+      const code = clerkError?.code;
+      const message = clerkError?.message;
+
+      if (code === "form_identifier_not_found") {
+        Alert.alert(
+          "Account not found",
+          "We couldn't find an account with this email. Please check your email address or sign up for a new account."
+        );
+      } else {
+        Alert.alert("Error", message || "Sign in failed. Please try again.");
+      }
+
       console.error(JSON.stringify(err, null, 2));
     } finally {
       setLoading(false);
