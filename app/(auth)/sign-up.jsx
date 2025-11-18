@@ -48,7 +48,17 @@ const SignUpScreen = () => {
         console.log(JSON.stringify(signUpAttempt, null, 2));
       }
     } catch (error) {
-      Alert.alert("Error", error?.errors?.[0]?.message || "Sign up failed!")
+      const clerkMessage = error?.errors?.[0]?.message;
+
+      if (clerkMessage && clerkMessage.toLowerCase().includes("data breach")) {
+        Alert.alert(
+          "Weak / Breached Password",
+          "For your security, this password has been found in a data breach. Please choose a strong, unique password that you haven't used elsewhere."
+        );
+      } else {
+        Alert.alert("Error", clerkMessage || "Sign up failed! Please try again.");
+      }
+
       console.error(error)
     } finally {
       setLoading(false)
