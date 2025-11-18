@@ -1,48 +1,58 @@
-import { View, Text, KeyboardAvoidingView, ScrollView, Platform, Alert, TextInput, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
-import { useSignUp } from '@clerk/clerk-expo'
-import { authStyles } from '../../assets/styles/auth.styles'
-import { COLORS } from '../../constants/colors'
-import { Image } from 'expo-image'
+import { useSignUp } from "@clerk/clerk-expo";
+import { Image } from "expo-image";
+import { useState } from "react";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { authStyles } from "../../assets/styles/auth.styles";
+import { COLORS } from "../../constants/colors";
 
 const VerifyEmail = ({ email, onBack }) => {
-  const { isLoaded, signUp, setActive } = useSignUp()
-  const [code, setCode] = useState("")
-  const [loading, setLoading] = useState(false)
+  const { isLoaded, signUp, setActive } = useSignUp();
+  const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleVerification = async () => {
-    if (!isLoaded) return
-    setLoading(true)
+    if (!isLoaded) return;
 
+    setLoading(true);
     try {
-      const signUpAttempt = await signUp.attemptEmailAddressVerification({ code })
+      const signUpAttempt = await signUp.attemptEmailAddressVerification({ code });
 
       if (signUpAttempt.status === "complete") {
-        await setActive({ session: signUpAttempt.createdSessionId })
+        await setActive({ session: signUpAttempt.createdSessionId });
       } else {
-        Alert.alert("Error", "Verification failed. Please try again!");
-        console.log(JSON.stringify(signUpAttempt, null, 2));
+        Alert.alert("Error", "Verification failed. Please try again.");
+        console.error(JSON.stringify(signUpAttempt, null, 2));
       }
-    } catch (error) {
-      Alert.alert("Error", error?.errors?.[0]?.message || "Verification failed!")
-      console.error(error)
+    } catch (err) {
+      Alert.alert("Error", err.errors?.[0]?.message || "Verification failed");
+      console.error(JSON.stringify(err, null, 2));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
+  };
 
-  }
   return (
     <View style={authStyles.container}>
       <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={authStyles.keyboardView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
       >
         <ScrollView
           contentContainerStyle={authStyles.scrollContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          {/* image view */}
+          {/* Image Container */}
           <View style={authStyles.imageContainer}>
             <Image
               source={require("../../assets/images/i3.png")}
@@ -51,47 +61,44 @@ const VerifyEmail = ({ email, onBack }) => {
             />
           </View>
 
-          {/* Tilte */}
-          <Text style={authStyles.title}>Verify Email</Text>
-          <Text style={authStyles.description}>We&apos;ve sent a verification code to your {email}</Text>
+          {/* Title */}
+          <Text style={authStyles.title}>Verify Your Email</Text>
+          <Text style={authStyles.subtitle}>We&apos;ve sent a verification code to {email}</Text>
 
-          {/*  */}
           <View style={authStyles.formContainer}>
-            <TextInput
-              style={authStyles.textInput}
-              placeholder="Enter your Code"
-              placeholderTextColor={COLORS.textLight}
-              value={code}
-              onChangeText={setCode}
-              keyboardType="number-pad"
-              autoCapitalize="none"
-            />
-          </View>
+            {/* Verification Code Input */}
+            <View style={authStyles.inputContainer}>
+              <TextInput
+                style={authStyles.textInput}
+                placeholder="Enter verification code"
+                placeholderTextColor={COLORS.textLight}
+                value={code}
+                onChangeText={setCode}
+                keyboardType="number-pad"
+                autoCapitalize="none"
+              />
+            </View>
 
-          {/* Submit button */}
-          <TouchableOpacity
-            style={[authStyles.authButton, loading && authStyles.buttonDisabled]}
-            onPress={handleVerification}
-            disabled={loading}
-            activeOpacity={0.8}>
-            <Text style={authStyles.buttonText}>
-              {loading ? "Verifying..." : "Verify Email"}
-            </Text>
-          </TouchableOpacity>
+            {/* Verify Button */}
+            <TouchableOpacity
+              style={[authStyles.authButton, loading && authStyles.buttonDisabled]}
+              onPress={handleVerification}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              <Text style={authStyles.buttonText}>{loading ? "Verifying..." : "Verify Email"}</Text>
+            </TouchableOpacity>
 
-          {/* Sign up Link */}
-          <TouchableOpacity style={authStyles.linkContainer}
-            onPress={onBack}>
-            <Text style={authStyles.linkText}>
-              <Text style={authStyles.link}>
-                Go Back to Sign Up
+            {/* Back to Sign Up */}
+            <TouchableOpacity style={authStyles.linkContainer} onPress={onBack}>
+              <Text style={authStyles.linkText}>
+                <Text style={authStyles.link}>Back to Sign Up</Text>
               </Text>
-            </Text>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
-  )
-}
-
-export default VerifyEmail
+  );
+};
+export default VerifyEmail;
